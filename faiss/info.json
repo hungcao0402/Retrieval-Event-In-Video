@@ -1,0 +1,32 @@
+{
+    "AIC_db_IP.index": {
+        "PARALLEL_MODE_NO_HEAP_INIT": 1024,
+        "__doc__": "\n     An IVF implementation where the components of the residuals are\n    encoded with a scalar quantizer. All distance computations\n    are asymmetric, so the encoded vectors are decoded and approximate\n    distances are computed.\n    ",
+        "__module__": "faiss.swigfaiss_avx2",
+        "code_size": 128,
+        "d": 256,
+        "max_codes": 0,
+        "metric_arg": 0.0,
+        "metric_type": "METRIC_INNER_PRODUCT",
+        "nlist": 5125,
+        "nprobe": 128,
+        "ntotal": 199898,
+        "parallel_mode": 0,
+        "quantizer_trains_alone": "\u0000"
+    },
+    "AIC_db_L2.index": {
+        "PARALLEL_MODE_NO_HEAP_INIT": 1024,
+        "__doc__": "\n     An IVF implementation where the components of the residuals are\n    encoded with a scalar quantizer. All distance computations\n    are asymmetric, so the encoded vectors are decoded and approximate\n    distances are computed.\n    ",
+        "__module__": "faiss.swigfaiss_avx2",
+        "code_size": 128,
+        "d": 256,
+        "max_codes": 0,
+        "metric_arg": 0.0,
+        "metric_type": "METRIC_L2",
+        "nlist": 5125,
+        "nprobe": 128,
+        "ntotal": 199898,
+        "parallel_mode": 0,
+        "quantizer_trains_alone": "\u0000"
+    }
+}

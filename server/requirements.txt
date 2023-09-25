@@ -1,0 +1,8 @@
+fastapi==0.100.0
+gdown>=4.7.1            # google drive model download
+meilisearch
+numpy
+PyYAML
+uvicorn==0.22.0
+python-multipart
+google-cloud-translate==2.0.1

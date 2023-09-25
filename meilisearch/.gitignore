@@ -1,0 +1,4 @@
+deployment/data*
+deployment/meili*
+log.txt
+src/__pycache__

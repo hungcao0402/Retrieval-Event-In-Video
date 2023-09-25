@@ -1,0 +1,7 @@
+resources:
+  keyframes_folder: "./data/Merge/Keyframe"
+  videos_metadata_folder: "./data/Merge/Metadata"
+search_core_configs:
+  FaissURL: 'http://faiss_service:8051/text_query'
+  MeiliSearchURL: 'http://meilisearch_service:7701'
+  index_ocr: 'ocr'

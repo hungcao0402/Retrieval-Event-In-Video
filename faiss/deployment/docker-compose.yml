@@ -1,0 +1,17 @@
+version: "3"
+services:
+  faiss_service:
+    image: faiss:latest
+    restart: on-failure
+    tty: true
+    volumes:
+      - ../:/home
+    ports:
+      - ${PORT}:8000
+    environment:
+      MODEL_CONFIG_PATH: ${MODEL_CONFIG_PATH}
+
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    entrypoint: /bin/sh -c "python src/search.py --config-path ${MODEL_CONFIG_PATH} --port 8000"
+    runtime: nvidia # <- this option

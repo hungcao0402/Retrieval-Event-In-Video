@@ -1,0 +1,7 @@
+faiss==1.7.4
+numpy==1.24.3
+Pillow
+fastapi
+PyYAML
+uvicorn
+python-multipart

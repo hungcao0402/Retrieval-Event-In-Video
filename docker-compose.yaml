@@ -1,0 +1,53 @@
+version: "3.7"
+services:
+  client:
+    image: node:18.17.1-bullseye
+    container_name: client
+    volumes:
+      - ./client-vite:/app/client
+      - ./data/Merge/Keyframe_Compress:/app/client/dist/Keyframe # 154
+      # - ./data/Merge/Keyframe_Compress:/app/client/dist3090/Keyframe # 3090
+    ports:
+      - ${CLIENT_PORT}:${CLIENT_PORT}
+    working_dir: /app/client
+    command: yarn preview --port ${CLIENT_PORT} --host
+
+  faiss_service:
+    build:
+      context: ./faiss/
+      dockerfile: deployment/Dockerfile
+    container_name: faiss_service
+    restart: on-failure
+    # tty: true
+    volumes:
+      - ./faiss/:/home
+    ports:
+      - ${FAISS_SERVICE_PORT}:${FAISS_SERVICE_PORT}
+    extra_hosts:
+      - "host.docker.internal:172.17.0.1"
+    entrypoint: /bin/sh -c "python src/search.py --config-path ${FAISS_MODEL_CONFIG_PATH} --port ${FAISS_SERVICE_PORT}"
+    # runtime: nvidia # <- this option
+
+  meilisearch:
+    image: getmeili/meilisearch:v1.3
+    container_name: meilisearch_service
+    environment:
+      - MEILI_MASTER_KEY=${MEILI_MASTER_KEY:-masterKey}
+      - MEILI_DB_PATH=${MEILI_DB_PATH:-/data.ms}
+    volumes:
+      - ./meilisearch/deployment/data.ms:/data.ms
+    ports:
+      - ${MEILI_PORT:-7700}:7700
+
+  server:
+    build:
+      context: ./server/
+      dockerfile: deployment/Dockerfile
+    container_name: server
+    volumes:
+      - ./server:/app/server
+      - ./data/Merge/:/app/server/data/
+    ports:
+      - ${SERVER_PORT}:${SERVER_PORT}
+    # entrypoint: /bin/sh -c "uvicorn main:app --reload --host 0.0.0.0 --port ${SERVER_PORT}"
+    entrypoint: /bin/sh -c "uvicorn api:app --reload --host 0.0.0.0 --port ${SERVER_PORT}"

@@ -1,0 +1,10 @@
+__pycache__/
+*.ipynb
+*.pyc
+*.npy
+*.json
+index/
+logs/
+data/
+.env
+initialize_data.py
