@@ -35,7 +35,9 @@ class TextSearchApi:
         print('database shape:', self.database.shape)
 
         self.encoder = Encoder(model_name=self.config['model_clip'], project= self.config['project_blip'], use_gpu=self.config['use_gpu'])
-        self.faiss_searcher = Faiss(self.config['feature_path'],  use_gpu=self.config['use_gpu'])
+
+        if self.config['model_clip'] != 'BLIP':
+            self.faiss_searcher = Faiss(self.config['feature_path'],  use_gpu=self.config['use_gpu'])
         with open(self.config['keyframe_name_path']) as f:
             self.keyframe_names = json.load(f)
 
@@ -51,8 +53,14 @@ class TextSearchApi:
             encoded_text = self.encoder.encode_texts(queries)
             t1 = time.time()
             
-            print(encoded_text.shape)
-            distances, result_indices = self.faiss_searcher.search(encoded_text, top_k=topk)
+            # print(encoded_text.shape)
+            if self.config['model_clip'] == 'BLIP':
+                similarity = np.max(self.database @ np.array(encoded_text.text_embeds[:,0,:].t().cpu()), axis=1)
+                similarity = np.squeeze(similarity)
+                result_indices = np.argsort(similarity)[::-1][:topk]
+                distances = similarity
+            else:
+                distances, result_indices = self.faiss_searcher.search(encoded_text, top_k=topk)
             t2 = time.time()
             
             Log().log.info(f"Total time: {t2-t0} | Encode time: {t1-t0} | Faiss time: {t2-t1} | Query: {text_query}")

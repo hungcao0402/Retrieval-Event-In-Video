@@ -75,9 +75,9 @@ class Encoder:
             sample = {"image": "", "text_input": [text_input]}
             features_text = self.model.extract_features(sample, mode="text")
             if self.project:
-                text_features = features_text.text_embeds_proj[:,0,:].t().cpu().numpy().astype(np.float32).reshape(1,-1)
+                text_features = features_text
             else:
-                text_features = features_text.text_embeds[:,0,:].t().cpu().numpy().astype(np.float32).reshape(1,-1)
+                text_features = features_text
         else:
             tokenized_text = self.tokenize(text).to(self.device)
             with torch.no_grad():

@@ -5,7 +5,7 @@ import os
 import tqdm
 
 class MeiliSearch():
-    def __init__(self, url: str = 'http://127.0.0.1:7700') -> None:
+    def __init__(self, url: str = 'http://127.0.0.1:7701') -> None:
         self.client = meilisearch.Client(url, 'mmlab')
 
     def add_ocr(self, index_name, data_path='/mmlabworkspace/Students/AIC/MMLAB-UIT-AIC2023/data/Merge/OCR2'):
@@ -49,8 +49,6 @@ class MeiliSearch():
         save_path = 'asr.json'
         index = self.client.index(index_name)
 
-        json_file = open('movies.json', encoding='utf-8')
-        movies = json.load(json_file)
         # self.client.index('movies').add_documents(movies)
         if os.path.exists(save_path):
             print(f"The file {save_path} exists.")
@@ -61,26 +59,26 @@ class MeiliSearch():
 
             for i in data:
                 asr.append({
+                    'id' : int(i['id']),
                     'frame_start' : i['frame_start'],
                     'frame_end': i['frame_end'],
                     'video_id': i['video_id'],
                     'text': i['text'],
-                    'id' : i['id']
                 })
             self.client.index(index_name).add_documents(asr)
+
         else:
             output = []
             asr_file = sorted(glob.glob(os.path.join(data_path, '*.json')))
             id = 0
             for file in tqdm.tqdm(asr_file):
-                print(file)
                 with open(file, 'r') as json_file:
                     data = json.load(json_file)
                 video_id = os.path.basename(file).split('.')[0]
                 for label in data:
                     ann = {
                         'id': id,
-                        'video_id': video_id,
+                        'video_id': str(video_id),
                         "frame_start": int(label['start']),
                         "frame_end": int(label['end']),
                         "text": label['text']
@@ -89,8 +87,10 @@ class MeiliSearch():
 
                     id+=1
 
-            self.client.index(index_name).add_documents(asr)
+                    self.client.index(index_name).add_documents(output)
 
+                    break
+                break
             with open(save_path, 'w') as json_file:
                 json.dump(output, json_file)
 
@@ -110,7 +110,7 @@ class MeiliSearch():
                 'matchingStrategy': matchingStrategy
                 })['hits']
         
-        result = [i['frame'] for i in result]
+        # result = [i['frame'] for i in result]
         
         return result
 

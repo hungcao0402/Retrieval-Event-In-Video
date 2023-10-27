@@ -9,10 +9,11 @@ type PlayerModalProps = {
     isOpen: boolean;
     setModalOpen: React.Dispatch<SetStateAction<boolean>>;
     frameData: Frame;
+    handleSubmit: (frame: string) => void;
 };
 
 
-const PlayerModal: FC<PlayerModalProps> = ({ isOpen, setModalOpen, frameData }) => {
+const PlayerModal: FC<PlayerModalProps> = ({ isOpen, setModalOpen, frameData, handleSubmit }) => {
     const { nearByFrames, index, youtubeUrl, playedSecond, similarFrames } = frameData;
     const initIndex = index;
     const [currentIndex, setCurrentIndex] = useState<number>(initIndex);
@@ -78,7 +79,9 @@ const PlayerModal: FC<PlayerModalProps> = ({ isOpen, setModalOpen, frameData }) 
                         width={'100%'}
                     />
                 </div>
-
+                <div>
+                    <Button onClick={() => handleSubmit(nearByFrames[currentIndex])}>Submit</Button>
+                </div>
                 <div className='flex-row'>
                     {/* Previous frames */}
                     {currentIndex > 0 && <List

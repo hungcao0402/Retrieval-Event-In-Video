@@ -22,7 +22,7 @@ class Faiss_Clip:
             }
         """
     # if text_query[0] == '!':
-        text_query = translate_text(target='en', text=text_query[1:])['translatedText']
+        text_query = translate_text(target='en', text=text_query)['translatedText']
 
         params = {"text_query": text_query, "topk": topk}
         headers = {"accept": "application/json"}
@@ -45,7 +45,7 @@ class Faiss_Clip:
                 "distances": }
             }
         """
-        text_query = translate_text(target='en', text=text_query[1:])['translatedText']
+        text_query = translate_text(target='en', text=text_query)['translatedText']
 
         positive_frames = ['/'.join(x.split('/')[-2:]) for x in positive_frames]
         negative_frames = ['/'.join(x.split('/')[-2:]) for x in negative_frames]

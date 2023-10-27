@@ -1,5 +1,6 @@
 KeyframeFolder: '/mmlabworkspace/Students/AIC/MMLAB-UIT-AIC2023/data/Merge/Keyframe'
-FaissURL: 'http://faiss_service:8005/text_query'
+FaissURL: 'http://faiss_service:8002/text_query'
 ImgURL: 'http://localhost:8055/'
 MeiliSearchURL: 'http://meilisearch:7700'
 index_ocr: 'ocr'
+SESSION_ID: 'SESSION_ID'

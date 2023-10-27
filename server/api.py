@@ -7,10 +7,10 @@ from fastapi.middleware.cors import CORSMiddleware
 from retrieval_system.pkg.retrieval.core import RetrievalCore
 from retrieval_system.schemas.query import TextQueryContent
 from retrieval_system.utils.load_info import get_index, load_frame_info, load_videos_info
-from retrieval_system.utils.logger import Log
+from retrieval_system.utils.logger import get_Log
 
-logger = Log('server')
-os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = 'configs/aic2023-398508-d971b8edb159.json' 
+logger = get_Log('server')
+os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = 'configs/artful-guru-401002-e73e30e04ec5.json' 
 
 with open("configs/config.yaml", "r") as f:
     config = yaml.safe_load(f)
@@ -37,16 +37,26 @@ search_core = RetrievalCore(
     index_ocr=config["index_ocr"],
     frames_info=frame_info)
 
+logger_question = get_Log('question')
 
 @app.post("/search")
 async def search(text_data: TextQueryContent):
     start = time.time()
     print(text_data.dict())
+    print()
+    try:
+        if text_data.dict()['clip_queries']:
+            if text_data.dict()['clip_queries'][0]['text'][0] == ',':
+                text_data.clip_queries[0].text = text_data.dict()['clip_queries'][0]['text'][1:]
+                logger_question.info(text_data.dict()['clip_queries'][0]['text'] )
+    except:
+        print('error')
+
     keyframes = search_core.search(**text_data.dict())
     result = [os.path.join("Keyframe", i) for i in keyframes]
 
     time_query = time.time()-start
-    Log().log.info(f"Time: {time_query} | Query: {text_data.dict()}")
+    logger.info(f"Time: {time_query} | Query: {text_data.dict()}")
 
     return {"result": result}
 
@@ -90,7 +100,7 @@ async def keyframe_search(frame, topk=100):
 
 @app.post("/image_search/")
 async def image_search(image: UploadFile):
-    Log().log.info(f"filename: {image.filename}")
+    logger.info(f"filename: {image.filename}")
     # Xử lý hình ảnh ở đây, sau đó gửi đến app2
     # with open(image.filename, "wb") as f:
     #     f.write(image.file.read())
@@ -100,23 +110,68 @@ async def image_search(image: UploadFile):
 
     return {"result": result}
 
-# @app.post("/clip_query")
-# async def clip_query(query: str, topk: int):
-#     start = time.time()
-#     result = search_core.search_clip(text_query=query, topk=topk)
-#     keyframes = result["response"]
-#     distances = result["distances"]
-#     keyframes = [os.path.join("Keyframe", i) for i in keyframes]
-#     print("Time:", time.time() - start)
-#     return {"result": keyframes, "distances": distances}
+
+@app.post("/submit")
+async def image_search(frame):
+
+    # Địa chỉ URL của endpoint login
+    url = "https://eventretrieval.one/api/v1/login"
+
+    # Dữ liệu JSON chứa tên người dùng và mật khẩu
+    data = {
+        "username": "mmlabuit",
+        "password": "Caipha4a"
+    }
+
+    # Thực hiện yêu cầu POST
+    response = requests.post(url, json=data)
+
+    # Kiểm tra phản hồi
+    if response.status_code == 200:
+        # Yêu cầu thành công, bạn có thể xử lý dữ liệu phản hồi ở đây
+        print("Login successful")
+        sessionId = response.json()['sessionId']  # Dữ liệu JSON phản hồi từ server
 
 
-# @app.post("/ocr_query")
-# async def ocr_query(query, topk: int = 300):
-#     start = time.time()
-#     result = search_core.search_ocr(text_query=query, topk=topk)
-#     result = [os.path.join("Keyframe", i) for i in result]
-#     print("Time:", time.time() - start)
-#     return {"result": result}
+        # Define the URL
+        url = "https://eventretrieval.one/api/v1/submit"
 
+        frame = '/'.join(frame.split('.')[0].split('/')[-2:])
+
+        video_id, frame = frame.split('/')
+
+        # Define the parameters
+        params = {
+            "item": video_id,
+            "frame": frame,
+            "session": sessionId
+        }
+
+        # Send the GET request
+        response = requests.get(url, params=params)
+
+        # logging.info(f"Request Parameters: {params}")
+        logger.info(f"filename: {params}")
+        # Check if the request was successful (status code 200)
+        logger.info(f"filename: {response.json()}")
+        if response.status_code == 200:
+            # Parse the JSON response
+            data = response.json()
+            description = data.get("description")
+            submission_status = data.get("status")
+            # logging.info(f"Response Description: {description}")
+            # logging.info(f"Response Submission Status: {submission_status}")
+            print("Description:", description)
+            print("Submission Status:", submission_status)
+        else:
+            error_message = f"Failed to retrieve data. Status code: {response.status_code}"
+            # logging.error(error_message)
+            print(error_message)
+
+        return response.json()
+    else:
+        # Yêu cầu không thành công, hiển thị thông báo lỗi
+        print(f"Login failed. Status code: {response.status_code}")
+        print(response.text)  # In nội dung phản hồi để xem lý do thất bại (nếu có)
+        return response.json()
 

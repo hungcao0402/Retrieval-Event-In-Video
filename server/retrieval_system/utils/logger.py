@@ -4,14 +4,7 @@ import sys
 
 LOGS_ROOT = "./logs/"
 
-class Log:
-    log: logging.Logger = None
-
-    def __init__(self, name="") -> None:
-        if Log.log == None:
-            Log.log = self._init_logger(name)
-
-    def _init_logger(self, name):
+def get_Log(name):
         logger = logging.getLogger(name)
         formatter = logging.Formatter(
             "%(asctime)s - %(name)s - %(levelname)s - %(message)s"

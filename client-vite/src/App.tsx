@@ -2,7 +2,7 @@ import { FC, useState, createContext } from 'react'
 import './App.css'
 
 import { QueryForm, ImageGrid, PlayerModal, FeedbackModal } from './components'
-import { FloatButton, Tooltip } from 'antd'
+import { FloatButton, Tooltip, message } from 'antd'
 import { Frame } from './types'
 
 type ImageContextType = {
@@ -30,6 +30,22 @@ const App: FC = () => {
 
     const [positiveFrames, setPositiveFrames] = useState<string[]>([]);
     const [negativeFrames, setNegativeFrames] = useState<string[]>([]);
+
+    const [messageApi, contextHolder] = message.useMessage();
+
+    const success = (description: string) => {
+        messageApi.open({
+            type: 'success',
+            content: description,
+        });
+    };
+
+    const error = (description: string) => {
+        messageApi.open({
+            type: 'error',
+            content: description,
+        });
+    };
 
     const modifyFeedback = (type: number, path?: string, isNeg?: boolean) => {
         // console.log(type, path, isNeg);
@@ -76,7 +92,32 @@ const App: FC = () => {
         }
     }
 
-
+    const handleSubmit = (frame: string) => {
+        try {
+            fetch(`${process.env.API_URL}/submit?frame=${frame}`,
+                { method: 'POST' }
+            ).then(
+                response => response.json()
+            ).then(
+                message => {
+                    const status = message['status'];
+                    const description = message['description'];
+                    if (status === false) {
+                        error(description)
+                    } else {
+                        const submission = message['submission']
+                        if (submission === 'WRONG') {
+                            error(description)
+                        } else {
+                            success(description)
+                        }
+                    }
+                }
+            )
+        } catch (error) {
+            console.log(error);
+        }
+    }
     const handleOpenFeedbackModal = () => {
         setFeedbackModalOpen(true)
     }
@@ -94,6 +135,7 @@ const App: FC = () => {
 
     return (
         <ImageContext.Provider value={imageContextValue}>
+            {contextHolder}
             <QueryForm
                 setPaths={setPaths}
                 positiveFrames={positiveFrames}
@@ -105,6 +147,7 @@ const App: FC = () => {
                 isOpen={isModalOpen}
                 setModalOpen={setModalOpen}
                 frameData={frameData}
+                handleSubmit={handleSubmit}
             />}
             <FeedbackModal
                 isOpen={isFeedbackModalOpen}
