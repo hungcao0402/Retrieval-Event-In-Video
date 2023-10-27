@@ -9,6 +9,7 @@ Docker Compose
 
 ## Prepare data
 All code prepare data in folder ```data_preparation```: 
+
     - ocr data: ocr_api.py
     - asr data:  asr_prep.py -> whisper_inference.py
     - data for faiss_service: stack_data.py
